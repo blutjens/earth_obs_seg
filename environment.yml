@@ -1,0 +1,19 @@
+name: earth_obs_seg2
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12.8
+  - pip
+  - matplotlib
+  - scikit-image
+  - scikit-learn
+  - numpy
+  - pandas
+  - jupyter
+  - tqdm # create progress bars
+  - torchvision
+  - rasterio # python wrapper on top of gdal for visualizing geospatial data
+  - gdal # low level library for remote sensing imagery
+  - pip:
+    - segmentation-models-pytorch # includes collection of good segmentation models

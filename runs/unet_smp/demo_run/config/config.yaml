@@ -1,0 +1,17 @@
+# This config.yaml is to demo the use of this template repository
+
+# Here's where you define experiment-specific hyperparameters.
+# You can also create lists and group parameters together into nested sub-parts.
+# In Python, this is all read as a dict.
+
+# environment/computational parameters
+seed: 42
+# device: cpu
+num_workers: 4
+use_deterministic_algorithms: True # Set torch layers to deterministic or raises error
+
+model_key: 'unet_smp'           # unique ID for chosen model that is used across filenames, logs, etc.
+encoder_name: 'resnet34'        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+encoder_weights: 'imagenet'     # use `imagenet` pre-trained weights for encoder initialization
+in_channels: 1                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+out_channels: 3                 # number of model output channels, e.g., 1 for binary classification

@@ -1,3 +1,11 @@
+######
+# Ignore these files from git
+######
+
+
+######
+# Pytorch default .gitignore
+######
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

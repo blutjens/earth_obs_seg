@@ -1,0 +1,11 @@
+[project]
+name = "earth_obs_seg"
+version = "0.1.0"
+description = "Template repository for segmentation in earth obs data"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"},
+]
+dynamic = ["dependencies", "optional-dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
