@@ -8,10 +8,36 @@
 seed: 42
 # device: cpu
 num_workers: 4
-use_deterministic_algorithms: True # Set torch layers to deterministic or raises error
+use_deterministic_algorithms: True # set torch layers to deterministic or raises error
+dtype: 'float32' # datatype for in-, output and model weights
 
 model_key: 'unet_smp'           # unique ID for chosen model that is used across filenames, logs, etc.
 encoder_name: 'resnet34'        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
 encoder_weights: 'imagenet'     # use `imagenet` pre-trained weights for encoder initialization
-in_channels: 1                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-out_channels: 3                 # number of model output channels, e.g., 1 for binary classification
+in_channels: 3                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+out_channels: 1                 # number of model output channels, e.g., 1 for binary classification
+
+experiment_key: 'demo_run'
+path_data: './data/oxfordpetdataset/' # replace this with your data path
+path_checkpoints: './runs/unet_smp/demo_run/checkpoints' # Store model checkpoints
+
+# training hyperparameters
+epochs: 100
+batch_size: 2
+optimizer: 'adamW' # Optimization algorithm
+learning_rate: 0.0001
+weight_decay: 0.
+loss_function: 'bcewithlogits' # For binary image segmentation
+
+# Step learning rate scheduler 
+lr_scheduler: 'ReduceLROnPlateau'
+lr_patience: 100 # Number of steps on validation loss platenau until lr scheduler reduces lr
+
+# CosineAnnealingWarmRestarts lerning rate scheduler
+# lr_scheduler: 'CosineAnnealingWarmRestarts'
+T_0: 35 # Number of epochs until first restart; 
+T_mult: 2 # A factor increases Ti after a restart. 
+# To understand this see: https://towardsdatascience.com/a-visual-guide-to-learning-rate-schedulers-in-pytorch-24bbb262c863
+# E.g., First restart after T_0 epochs and then 2nd restart after T_0*T_mult epochs
+# With T_0 = 35 and T_mult = 2, the training can be nicely stopped at 525 epochs: (1+ 2+ 4+ 8) *35 = 525
+eta_min: 0. # Minimum learning rate. Default: 0.

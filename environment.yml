@@ -3,17 +3,9 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.12.8
+  - python=3.12
   - pip
-  - matplotlib
-  - scikit-image
-  - scikit-learn
-  - numpy
-  - pandas
-  - jupyter
-  - tqdm # create progress bars
-  - torchvision
-  - rasterio # python wrapper on top of gdal for visualizing geospatial data
   - gdal # low level library for remote sensing imagery
+  - rasterio # python wrapper on top of gdal for visualizing geospatial data
   - pip:
     - segmentation-models-pytorch # includes collection of good segmentation models

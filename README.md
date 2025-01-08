@@ -12,8 +12,7 @@ conda install -c conda-forge --file requirements.txt
 pip install -e . # install 'earth_obs_seg' as python module
 ```
 
-## Installation
+## Train a model
 ```
-[] test if GPU installation works
-[] remove earth_obs_seg env
+python earth_obs_seg/train.py --cfg_path runs/unet_smp/demo_run/config/config.yaml
 ```

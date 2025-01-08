@@ -1,7 +1,8 @@
 ######
 # Ignore these files from git
 ######
-
+data/oxfordpetdataset
+runs/*/*/checkpoints
 
 ######
 # Pytorch default .gitignore
