@@ -125,7 +125,8 @@ if __name__ == '__main__':
     # Define loss function
     if cfg['loss_function'] == 'bcewithlogits':
         assert cfg['out_channels'] == 1, f'bcewithlogitsloss requires out_channels==1, not {cfg["out_channels"]}'
-        criterion = nn.BCEWithLogitsLoss()
+        # Use reduction='mean' to compute loss per img in batch
+        criterion = nn.BCEWithLogitsLoss(reduction='mean') 
     elif cfg['loss_function'] == 'dice':
         assert cfg['out_channels'] == 1, f'binary dice loss requires out_channels==1, not {cfg["out_channels"]}'
         criterion = smp.losses.DiceLoss(smp.losses.BINARY_MODE, from_logits=True)
@@ -159,7 +160,9 @@ if __name__ == '__main__':
                 
                 # Reset and scale gradients
                 optimizer.zero_grad(set_to_none=True)
+                loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.)
+                optimizer.step()
 
                 if cfg['lr_scheduler'] == 'CosineAnnealingWarmRestarts':
                     # Set step to a real value between 0 and cfg['epochs']

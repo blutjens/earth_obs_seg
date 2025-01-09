@@ -44,9 +44,9 @@ def online_eval(model, dataloader,
             # predict the output
             pred = model(inputs)
 
-            loss = criterion(pred, targets) # loss should be average per img.
+            loss = criterion(pred, targets) # average loss per img
 
-            total_loss += loss * batch_sizes[i]
+            total_loss += loss * batch_sizes[i] # compute total loss by multiplying with number of images in batch
         
             pbar2.update(batch_sizes[i])
             pbar2.set_postfix(**{'val loss/img': loss.cpu().numpy() / float(i+1)})
@@ -69,8 +69,8 @@ def online_eval(model, dataloader,
                     wandb_run.log({'inputs('+','.join(in_keys)+'), target-mask, target, pred': 
                                 log_ims_wandb}, commit=False)
 
-    val_score = total_loss / max(sum(batch_sizes), 1.)
-    logging.info('Validation loss: {}'.format(val_score))
+    val_score = total_loss / n_val
+    logging.info('val loss/img: {}'.format(val_score))
 
     # Log plots to wandb
     if wandb_run is not None:

@@ -1,7 +1,7 @@
 ### personally, I like to keep track of my todo's in a .md file like this.
 [x] test installation -> earth_obs_seg seems to work. Can delete earth_obs_seg2
 [x] add dtypes into code
-[] normalize data
+[x] normalize data
 [] add comments to code
 [] make GPU installation work ->> do later
 # did not work
