@@ -138,7 +138,7 @@ if __name__ == '__main__':
         model.train()
         epoch_loss = 0
         with tqdm(total=len(train_set),
-                  desc=f'Epoch {epoch}/{cfg['epochs']}', unit='img',
+                  desc=f'Epoch {epoch}/{cfg["epochs"]}', unit='img',
                   #disable=(sweep==False) # disable tqdm if printing to log instead of console
                   ) as pbar:
             for i, batch in enumerate(train_loader):

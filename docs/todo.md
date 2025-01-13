@@ -3,7 +3,7 @@
 [x] add dtypes into code
 [x] normalize data
 [] add comments to code
-[] make GPU installation work ->> do later
+[] make GPU installation work ->> I can test with hrmelt environment ->> do later
 # did not work
 conda create -n earth_obs_seg python=3.12
 conda activate earth_obs_seg
@@ -29,4 +29,7 @@ conda create -n earth_obs_seg python=3.12.8
 conda activate earth_obs_seg
 conda install -c conda-forge --file requirements.txt
 pip install -e . # install 'earth_obs_seg' as python module
-
+[x] edit pyproject.toml s.t., it only installs the package without requiremnents
+# next try -> dont define python version; all w conda
+conda env create -f environment.yml # >> installed python 3.13.1; torch 2.5.1; no CUDA; gdal works
+# next try -> maybe i can only make python 3.9 work?
