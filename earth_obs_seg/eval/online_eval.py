@@ -41,6 +41,10 @@ def online_eval(model, dataloader,
             inputs = inputs.to(device=device, dtype=dtype, memory_format=torch.channels_last)
             targets = targets.to(device=device, dtype=dtype)
 
+            # Todo: define a transform that includes normalization, augmentations, etc. and remove this line 
+            #  in train.py and online_eval.py
+            inputs = inputs / 255.
+
             # predict the output
             pred = model(inputs)
 
@@ -49,7 +53,7 @@ def online_eval(model, dataloader,
             total_loss += loss * batch_sizes[i] # compute total loss by multiplying with number of images in batch
         
             pbar2.update(batch_sizes[i])
-            pbar2.set_postfix(**{'val loss/img': loss.cpu().numpy() / float(sum(batch_sizes[:i+1]))})
+            pbar2.set_postfix(**{'val loss/img': total_loss.cpu().numpy() / float(sum(batch_sizes[:i+1]))})
 
             # Plot one image in the batch to wandb
             if i == np.floor(plot_img_idx / batch_sizes[0]): # index into batch that contains plot_img_idx

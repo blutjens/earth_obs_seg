@@ -10,6 +10,7 @@ cd <your_repo_name>
 conda create -n <your_repo_name> python=3.12.8
 conda activate <your_repo_name>
 conda install -c conda-forge --file requirements.txt
+# rename earth_obs_seg folder into <your_repo_name>
 pip install -e . # install <your_repo_name> as python module
 ```
 

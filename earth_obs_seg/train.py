@@ -149,7 +149,8 @@ if __name__ == '__main__':
                 inputs = inputs.to(device=device, dtype=dtype, memory_format=torch.channels_last)
                 targets = targets.to(device=device, dtype=dtype)
                 
-                # Todo: define a transform that includes normalization, augmentations, etc.
+                # Todo: define a transform that includes normalization, augmentations, etc. and remove this line 
+                #  in train.py and online_eval.py
                 inputs = inputs / 255.
                 
                 # Create model predictions
