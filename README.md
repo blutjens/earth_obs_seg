@@ -4,13 +4,13 @@ Barebone template code for training UNet for segmentation of remote sensing imag
 ## Installation
 We recommend installing the project via [conda](https://docs.conda.io/en/latest/).
 ```
-# click 'Fork' -> rename into <your_repo_name>
+# click 'use this template' -> set <your_repo_name> -> click 'private'
 git clone git@github.com:<username>/<your_repo_name>.git
 cd <your_repo_name>
-conda create -n earth_obs_seg python=3.12.8
-conda activate earth_obs_seg
+conda create -n <your_repo_name> python=3.12.8
+conda activate <your_repo_name>
 conda install -c conda-forge --file requirements.txt
-pip install -e . # install 'earth_obs_seg' as python module
+pip install -e . # install <your_repo_name> as python module
 ```
 
 ### Test torch and gdal installation:
@@ -31,6 +31,8 @@ git remote set-url upstream git@github.com:blutjens/earth_obs_seg.git
 git fetch upstream main
 # Apply the changes from the original repository into your files
 git merge upstream/main
+# Upload changes to your repository
+git push
 ```
 
 ## Train a model
