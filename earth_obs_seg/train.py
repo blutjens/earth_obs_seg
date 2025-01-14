@@ -26,7 +26,7 @@ from earth_obs_seg.utils.utils import lookup_torch_dtype
 
 def get_args():
     parser = argparse.ArgumentParser(description='Train the UNet on images and target masks')
-    parser.add_argument('--cfg_path', type=str, default='runs/unet/default/config/config.yaml',
+    parser.add_argument('--cfg_path', type=str, default='runs/unet_smp/demo_run/config/config.yaml',
                         help='Path to config yaml')
     return parser.parse_args()
 

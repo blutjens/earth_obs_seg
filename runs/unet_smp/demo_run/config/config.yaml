@@ -21,7 +21,12 @@ out_channels: 1                 # number of model output channels, e.g., 1 for b
 experiment_key: 'demo_run'
 path_data: './data/hrmelt_sample/' # Replace this with your data path
 path_checkpoints: './runs/unet_smp/demo_run/checkpoints' # Store model checkpoints
-
+path_train_split_csv: './runs/unet_smp/demo_run/config/train.csv' # Image filenames used during training
+path_val_split_csv: './runs/unet_smp/demo_run/config/val.csv' # Image filenames used during validation
+path_test_split_csv: './runs/unet_smp/demo_run/config/test.csv'  # Image filenames used during test
+# Choose channels that should be used as model inputs
+in_keys: ['pmw', 'mar_wa1']
+in_keys_static: []
 # These are the full paths to every channel the dataloader should have access to
 path_mar_wa1: './data/hrmelt_sample/MAR/MARv3.12/WA1/'
 path_pmw: './data/hrmelt_sample/PMW/'
@@ -30,13 +35,32 @@ path_melt: './data/hrmelt_sample/SAR/'
 path_landmask: './data/hrmelt_sample/landmask/landMask_100m.tif'
 path_dem: './data/hrmelt_sample/DEM/dem_100m.tif'
 
+# Normalization information. 
+# mean and standard deviation are calculated across the full dataset
+mean_pmw: 206.1035919189453
+mean_mar_wa1: 0.005986050236970186
+mean_melt: 0.1931522637605667
+mean_dem: 1175.09423828125
+std_pmw: 30.67822265625
+std_mar_wa1: 0.01700020208954811
+std_melt: 0.4618076921046514
+std_dem: 993.8524169921875
+normalize_inputs: True
+max_mar_wa1: 1.
+
 # training hyperparameters
 epochs: 100
 batch_size: 2
+img_size: [128,128] # height and width of tile
 optimizer: 'adamW' # Optimization algorithm
 learning_rate: 0.0001
 weight_decay: 0.
 loss_function: 'dice' # E.g., 'dice' for binary image segmentation
+
+# Data transformation and augmentation parameters
+#  GaussianBlur is applied deterministic and smoothes out sharp edges in input 
+pmw_GaussianBlur_kernel_size: 45. # Default 1. equals no augmentation
+pmw_GaussianBlur_sigma: 15. # Default 1. equals no augmentation
 
 # Step learning rate scheduler 
 lr_scheduler: 'ReduceLROnPlateau'

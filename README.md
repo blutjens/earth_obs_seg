@@ -32,7 +32,7 @@ python -c 'from osgeo import gdal'
 ## Add original repository as upstream
 ```
 # Register the original repo
-git remote set-url upstream git@github.com:blutjens/earth_obs_seg.git
+git remote add upstream git@github.com:blutjens/earth_obs_seg.git
 # Download changes in the original repository into your hidden .git folder
 git fetch upstream main
 # Apply the changes from the original repository into your files
