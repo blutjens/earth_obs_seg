@@ -17,9 +17,18 @@ encoder_weights: 'imagenet'     # use `imagenet` pre-trained weights for encoder
 in_channels: 3                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
 out_channels: 1                 # number of model output channels, e.g., 1 for binary classification
 
+# Replace <demo_run> with the name of your data split
 experiment_key: 'demo_run'
-path_data: './data/oxfordpetdataset/' # replace this with your data path
+path_data: './data/hrmelt_sample/' # Replace this with your data path
 path_checkpoints: './runs/unet_smp/demo_run/checkpoints' # Store model checkpoints
+
+# These are the full paths to every channel the dataloader should have access to
+path_mar_wa1: './data/hrmelt_sample/MAR/MARv3.12/WA1/'
+path_pmw: './data/hrmelt_sample/PMW/'
+path_melt: './data/hrmelt_sample/SAR/'
+# Paths to static variables
+path_landmask: './data/hrmelt_sample/landmask/landMask_100m.tif'
+path_dem: './data/hrmelt_sample/DEM/dem_100m.tif'
 
 # training hyperparameters
 epochs: 100
@@ -27,7 +36,7 @@ batch_size: 2
 optimizer: 'adamW' # Optimization algorithm
 learning_rate: 0.0001
 weight_decay: 0.
-loss_function: 'dice' # For binary image segmentation
+loss_function: 'dice' # E.g., 'dice' for binary image segmentation
 
 # Step learning rate scheduler 
 lr_scheduler: 'ReduceLROnPlateau'
