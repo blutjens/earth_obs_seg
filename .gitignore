@@ -3,6 +3,7 @@
 ######
 data/oxfordpetdataset
 runs/*/*/checkpoints
+docs/todo.md
 
 ######
 # Pytorch default .gitignore
