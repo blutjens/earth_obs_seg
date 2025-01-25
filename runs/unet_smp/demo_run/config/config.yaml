@@ -19,33 +19,69 @@ out_channels: 1 # Number of model output channels, e.g., 1 for binary classifica
 
 # Replace <demo_run> with the name of your data split
 experiment_key: 'demo_run'
-wandb_project_name: 'kelpseg_demo_run'
+wandb_project_name: 'hrmelt_demo_run'
 
 path_data: './data/hrmelt_sample/' # Replace this with your data path
+path_repo: './' # just means the current directory that you're in
 path_checkpoints: './runs/unet_smp/demo_run/checkpoints' # Store model checkpoints
+path_periodical_eval: './runs/unet_smp/demo_run/periodical_eval' # Store predictions during training across the full tif on samples from the validation set
+path_predictions: './runs/unet_smp/demo_run/predictions' # Store predictions across the full tif after training, e.g., on the test dataset
+path_deploy: './runs/unet_smp/demo_run/deploy' # Store predictions after training on a new dataset where we don|t have targets
+path_wandb: './runs/unet_smp/demo_run'
+plot_val_img_to_wandb: True # If plotting to wandb is activated, and this is True then we're plotting the inputs, targets_masks, and targets during validation
+plot_weight_histograms_to_wandb: False # # If plotting to wandb is activated, and this is True then plotting histogram of weights to wandb
 path_train_split_csv: './runs/unet_smp/demo_run/config/train.csv' # Image filenames used during training
 path_val_split_csv: './runs/unet_smp/demo_run/config/val.csv' # Image filenames used during validation
 path_test_split_csv: './runs/unet_smp/demo_run/config/test.csv'  # Image filenames used during test
+path_periodical_eval_split_csv: './runs/unet_smp/demo_run/config/periodical_eval.csv'  # Image filenames used during evaluation on full-scale tifs
+
+split_cfg: 'csv' # Axis to split the dataset. 
+  # 'csv' will use .csv files that contain the train, val, test image filenames
+  #  optional, add your split here, e.g.:
+  # 'hold_one_site_out' split that holds one site out
+  # 'kfold_hold_one_site_out' cross validation that will hold one site out and then repeat until all sites have been held out once
 # Choose channels that should be used as model inputs
 in_keys: ['pmw', 'mar_wa1']
 in_keys_static: []
+
+# optional, if one in key has multiple channels add them here
+#  Convention, the name of this config parameter has to correspond to one in_keys
+# in_keys_planet_superdove: ['b1','b2','b3','b4','b5','b6','b7','b8']
+
+# Band idx that corresponds to band number in the tif
+# band_idx_b1: 1
+# band_idx_b2: 2
+# band_idx_b3: 3
+# band_idx_b4: 4
+# band_idx_b5: 5
+# band_idx_b6: 6
+# band_idx_b7: 7
+# band_idx_b8: 8
+
+# Minimum number of pixels in the loaded tile that has to be from the 
+#  positive class. For example, for segmenting kelp setting this to 
+#  0.01 will make sure that every tile contains at least 1% kelp
+min_targets_percentage: 0.00
+max_n_resampling_of_cropped_tif: 10
+
 # These are the full paths to every channel the dataloader should have access to
+#  Convention, these names have to correspond to the in_keys.
 path_mar_wa1: './data/hrmelt_sample/MAR/MARv3.12/WA1/'
 path_pmw: './data/hrmelt_sample/PMW/'
-path_melt: './data/hrmelt_sample/SAR/'
+path_targets: './data/hrmelt_sample/SAR/'
 # Paths to static variables
 path_landmask: './data/hrmelt_sample/landmask/landMask_100m.tif'
 path_dem: './data/hrmelt_sample/DEM/dem_100m.tif'
 
 # Normalization information. 
-# mean and standard deviation are calculated across the full dataset
+#  Compute mean and standard deviation are calculated across the full dataset
 mean_pmw: 206.1035919189453
 mean_mar_wa1: 0.005986050236970186
-mean_melt: 0.1931522637605667
+mean_targets: 0.1931522637605667
 mean_dem: 1175.09423828125
 std_pmw: 30.67822265625
 std_mar_wa1: 0.01700020208954811
-std_melt: 0.4618076921046514
+std_targets: 0.4618076921046514
 std_dem: 993.8524169921875
 normalize_inputs: True
 max_mar_wa1: 1.
@@ -53,11 +89,13 @@ max_mar_wa1: 1.
 # training hyperparameters
 epochs: 100
 batch_size: 2
-img_size: [128,128] # height and width of tile
+img_size: [256,256] # height and width of tile
 optimizer: 'adamW' # Optimization algorithm
 learning_rate: 0.0001
 weight_decay: 0.
-loss_function: 'dice' # E.g., 'dice' for binary image segmentation
+# Define the loss function using, e.g., 'l1' for downscaling and
+#  'dice' for binary image segmentation
+loss_function: 'l1' 
 
 # Data transformation and augmentation parameters
 #  GaussianBlur is applied deterministic and smoothes out sharp edges in input 
@@ -69,6 +107,7 @@ lr_scheduler: 'ReduceLROnPlateau'
 lr_patience: 100 # Number of steps on validation loss platenau until lr scheduler reduces lr
 
 # CosineAnnealingWarmRestarts lerning rate scheduler
+#  Uncomment the line below and comment out ReduceLROnPlateau to use CosineAnnealing
 # lr_scheduler: 'CosineAnnealingWarmRestarts'
 T_0: 35 # Number of epochs until first restart; 
 T_mult: 2 # A factor increases Ti after a restart. 
@@ -76,3 +115,20 @@ T_mult: 2 # A factor increases Ti after a restart.
 # E.g., First restart after T_0 epochs and then 2nd restart after T_0*T_mult epochs
 # With T_0 = 35 and T_mult = 2, the training can be nicely stopped at 525 epochs: (1+ 2+ 4+ 8) *35 = 525
 eta_min: 0. # Minimum learning rate. Default: 0.
+
+# Logging a more stable evaluation metric to wandb this will evaluate on a static eval dataset and whole tiffs.
+# we implemented this because the validation step while training will take random tiles from the val split.
+# this will lead to a unstable validation metric.
+periodical_eval: True
+epochs_between_periodical_eval: 10 # period in epochs between evalutions
+period_wandb_full_scale_im: 10 # every periodical evaluation the metrics are computed, but only every period_wandb_full_scale_im periodical evaluations we are also sending the images to wandb
+starting_epoch: 1 # epochs before starting evaluation
+
+# Evaluation parameters
+prediction_batch_size: 8
+prediction_stride: 224 # Default recommendation during training: prediction_stride = img_size - 2*erode_size
+# 256 - 2*16 = 224
+erode_size: 16
+
+# Postprocessing parameters
+apply_landmask_to_predictions: False # might not be implemented yet

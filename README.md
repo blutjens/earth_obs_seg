@@ -38,6 +38,8 @@ python geospatial_unet_pytorch/train.py --cfg_path runs/unet_smp/demo_run/config
 - First, we recommend to make this repository run with the demo_run and sample dataset
 - Then, create a new python file geospatial_unet_pytorch/dataset/dataset_yourdataset.py
 - Edit train.py to use the new dataset class
+- Compute mean and standard deviation of each input channel across the dataset in 
+   a language of your choosing and insert the values in config.yaml.
 - Write a function creates data splits and saves by creating one filepath entry per full-scale tif into as train.csv, val.csv, test.csv, periodical_eval.csv
 ```
 

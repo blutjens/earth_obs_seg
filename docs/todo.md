@@ -3,7 +3,7 @@
     [x] update installation 
     [] go file by file and call git diff.. testing with hrmelt
         x train.py
-        config.yaml
+        x config.yaml
 [] create one notebook that illustrates hrmelt and one that illustrates kelpseg
 [x] rename earth_obs_seg into geospatial_unet_pytorch
     rename pyproject toml
