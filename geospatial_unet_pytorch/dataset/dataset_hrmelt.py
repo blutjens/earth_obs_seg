@@ -5,9 +5,9 @@ import torch
 from torch.utils.data import Dataset
 import torchvision.transforms as T # Compose, Resize, ToTensor, Normalize
 
-from earth_obs_seg.utils.utils import lookup_torch_dtype
-from earth_obs_seg.utils.geospatial import open_cropped_tif
-from earth_obs_seg.utils.geospatial import get_random_crop
+from geospatial_models_pytorch.utils.utils import lookup_torch_dtype
+from geospatial_models_pytorch.utils.geospatial import open_cropped_tif
+from geospatial_models_pytorch.utils.geospatial import get_random_crop
 
 def get_filepaths_from_csv(path_csv,
     split='train',
@@ -79,7 +79,7 @@ class HRMeltDataset(Dataset):
         Args:
             cfg dict(): Contains the loaded content from config.yaml
             split str: Specifies which split should be loaded. This argument should
-             match the filename, e.g., train for 'earth_obs_seg/runs/unet_smp/demo_run/
+             match the filename, e.g., train for 'geospatial_models_pytorch/runs/unet_smp/demo_run/
              config/train.csv'
             verbose bool: If True, will print some verbose outputs
 

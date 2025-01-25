@@ -1,8 +1,8 @@
-# earth_obs_seg
+# geospatial_unet_pytorch
 Barebone template code for training UNet for segmentation of remote sensing imagery 
 
 ## Installation
-We recommend installing the project via [conda](https://docs.conda.io/en/latest/).
+We recommend installing [conda](https://docs.conda.io/en/latest/) and then setup the project using the following lines:
 ```
 # click 'use this template' -> set <your_repo_name> -> click 'private'
 git clone git@github.com:<username>/<your_repo_name>.git
@@ -16,12 +16,12 @@ pip install jupyter
 pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
 pip install matplotlib
 pip install rasterio
-# rename earth_obs_seg folder into <your_repo_name>
-# replace earth_obs_seg in pyproject.toml with <your_repo_name>
+# rename geospatial_unet_pytorch folder into <your_repo_name>
+# replace geospatial_unet_pytorch in pyproject.toml with <your_repo_name>
 pip install -e . # install <your_repo_name> as python module
 ```
 
-### Test torch and gdal installation:
+### Test pytorch and gdal installation:
 ```
 # If the following line returns 'True', the torch -- GPU connection seems to work.
 python -c 'import torch; print(torch.cuda.is_available())'
@@ -29,19 +29,7 @@ python -c 'import torch; print(torch.cuda.is_available())'
 python -c 'from osgeo import gdal'
 ```
 
-## Add original repository as upstream
-```
-# Register the original repo
-git remote add upstream git@github.com:blutjens/earth_obs_seg.git
-# Download changes in the original repository into your hidden .git folder
-git fetch upstream main
-# Apply the changes from the original repository into your files
-git merge upstream/main
-# Upload changes to your repository
-git push
-```
-
 ## Train a model
 ```
-python earth_obs_seg/train.py --cfg_path runs/unet_smp/demo_run/config/config.yaml
+python geospatial_unet_pytorch/train.py --cfg_path runs/unet_smp/demo_run/config/config.yaml
 ```

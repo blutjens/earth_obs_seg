@@ -1,14 +1,14 @@
 [project]
-name = "earth_obs_seg"
+name = "geospatial_unet_pytorch"
 version = "0.1.0"
-description = "Template repository for segmentation in earth obs data"
+description = "Template repository for image-to-image translation tasks on geospatial, earth observation, or satellite data using unet"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "Björn Lütjens", email = "your.email@example.com"},
 ]
 dynamic = ["dependencies", "optional-dependencies"]
 
 [tool.setuptools]
-packages = ["earth_obs_seg"]
+packages = ["geospatial_unet_pytorch"]
 
 [tool.setuptools.dynamic]
 # dependencies = {  file = ["requirements.txt"] }

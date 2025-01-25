@@ -1,6 +1,7 @@
 ######
 # Ignore these files from git
 ######
+archive/*
 data/oxfordpetdataset
 runs/*/*/checkpoints
 docs/todo.md
