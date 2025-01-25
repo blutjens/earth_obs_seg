@@ -267,9 +267,9 @@ class HRMeltDataset(Dataset):
             meta['channels'][ch_idx] = 'mar_wa1' 
             ch_idx += 1
 
-        # Adding DEM
+        # Adding static input channel DEM
         if 'dem' in data_stack:
-            dem_filepath = Path(self.cfg['data_root'])/Path(self.cfg['path_dem'])
+            dem_filepath = Path(self.cfg['path_data'])/Path(self.cfg['path_dem'])
             dem = open_cropped_tif(str(dem_filepath), self.cfg['img_size'], offsets)
             dem = dem.astype(np.float32)
             dem = torch.from_numpy(dem.transpose((2, 0, 1))).contiguous() # Pytorch uses channels-first: (c, h, w)

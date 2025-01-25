@@ -48,7 +48,7 @@ def online_eval(model, dataloader,
             total_loss += loss * batch_sizes[i] # compute total loss by multiplying with number of images in batch
         
             pbar2.update(batch_sizes[i])
-            pbar2.set_postfix(**{'val loss/img': loss.cpu().numpy()})
+            pbar2.set_postfix(**{'val loss/valid_px': loss.cpu().numpy()})
 
             # Plot one image per epoch to wandb
             if i == np.floor(plot_img_idx / batch_sizes[0]): # if current batch contains the image we'd like to plot

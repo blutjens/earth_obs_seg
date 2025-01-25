@@ -28,11 +28,11 @@ python -c 'from osgeo import gdal'
 
 ## Train a model
 ```
-python geospatial_unet_pytorch/train.py --cfg_path runs/unet_smp/demo_run/config/config.yaml
-# Navigate to the wandb link that's in the terminal to see the training curve
+python geospatial_unet_pytorch/train.py --cfg_path runs/unet_smp/demo_run/config/config.yaml --no_wandb
+# Remove --no_wandb to monitoring training on weights and biases curve
 ```
 
-## Used the trained model to create predictions 
+## Use the trained model to create predictions 
 ```
 python kelpseg/predict.py --load 'runs/unet_smp/demo_run/checkpoints/checkpoint_epoch10.pth'
 ```

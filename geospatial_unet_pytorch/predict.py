@@ -317,7 +317,9 @@ def predict(model,
         if metrics_fn is not None:
             for metric_key in metrics_fn.keys():
                 metric_values[metric_key] = metric_values[metric_key] / n_tifs
-                wandb_run.log(metric_values, commit=False)
+                logging.info(f'periodical eval {metric_key} / valid px: {metric_values[metric_key]}')
+                if wandb_run:
+                    wandb_run.log(metric_values, commit=False)
 
         # Log full-scale images to wandb during selected evaluations
         if (wandb_run and add_full_scale_im_to_wandb):
