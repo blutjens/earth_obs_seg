@@ -14,7 +14,7 @@ dtype: 'float32' # Datatype for in-, output and model weights
 model_key: 'unet_smp' # Unique ID for chosen model that is used across filenames, logs, etc.
 encoder_name: 'resnet34' # Choose encoder, e.g. mobilenet_v2 or efficientnet-b7
 encoder_weights: null # Use `imagenet` pre-trained weights for encoder initialization
-in_channels: 3 # Model input channels (1 for gray-scale images, 3 for RGB, etc.)
+in_channels: 3 # Model input channels. Convention, this needs to match the total number of input keys
 out_channels: 1 # Number of model output channels, e.g., 1 for binary classification
 
 # Replace <demo_run> with the name of your data split
@@ -22,8 +22,8 @@ experiment_key: 'demo_run'
 wandb_project_name: 'hrmelt_demo_run'
 
 path_data: './data/hrmelt_sample/' # Replace this with your data path
-path_repo: './' # just means the current directory that you're in
-path_checkpoints: './runs/unet_smp/demo_run/checkpoints' # Store model checkpoints
+path_repo: './' # Path to the repo root. This is here for quickly changing the paths from within a jupyter notebook
+path_checkpoints: './runs/unet_smp/demo_run/checkpoints' # Store model checkpoints (relative to the repository)
 path_periodical_eval: './runs/unet_smp/demo_run/periodical_eval' # Store predictions during training across the full tif on samples from the validation set
 path_predictions: './runs/unet_smp/demo_run/predictions' # Store predictions across the full tif after training, e.g., on the test dataset
 path_deploy: './runs/unet_smp/demo_run/deploy' # Store predictions after training on a new dataset where we don|t have targets
@@ -42,7 +42,7 @@ split_cfg: 'csv' # Axis to split the dataset.
   # 'kfold_hold_one_site_out' cross validation that will hold one site out and then repeat until all sites have been held out once
 # Choose channels that should be used as model inputs
 in_keys: ['pmw', 'mar_wa1']
-in_keys_static: []
+in_keys_static: ['dem']
 
 # optional, if one in key has multiple channels add them here
 #  Convention, the name of this config parameter has to correspond to one in_keys
@@ -64,14 +64,15 @@ in_keys_static: []
 min_targets_percentage: 0.00
 max_n_resampling_of_cropped_tif: 10
 
-# These are the full paths to every channel the dataloader should have access to
+# These are the paths relative to path_data to every channel the 
+#  dataloader should have access to
 #  Convention, these names have to correspond to the in_keys.
-path_mar_wa1: './data/hrmelt_sample/MAR/MARv3.12/WA1/'
-path_pmw: './data/hrmelt_sample/PMW/'
-path_targets: './data/hrmelt_sample/SAR/'
+path_mar_wa1: 'MAR/MARv3.12/WA1/'
+path_pmw: 'PMW/'
+path_targets: 'SAR/'
 # Paths to static variables
-path_landmask: './data/hrmelt_sample/landmask/landMask_100m.tif'
-path_dem: './data/hrmelt_sample/DEM/dem_100m.tif'
+path_landmask: 'landmask/landMask_100m.tif'
+path_dem: 'DEM/dem_100m.tif'
 
 # Normalization information. 
 #  Compute mean and standard deviation are calculated across the full dataset

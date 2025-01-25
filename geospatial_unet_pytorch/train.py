@@ -1,6 +1,5 @@
 '''
-    Training script. Here, we load the training and validation datasets (and
-    data loaders) and the model and train and validate the model accordingly.
+    Training script. This is the main script to train the model.
 '''
 # Best practice is to import all packages at the beginning of the code.
 import os
@@ -27,9 +26,8 @@ from geospatial_unet_pytorch.utils.utils import set_all_seeds
 from geospatial_unet_pytorch.utils.utils import lookup_torch_dtype
 # from geospatial_unet_pytorch.dataset.dataset_kelp import KelpDataset
 from geospatial_unet_pytorch.dataset.dataset_hrmelt import HRMeltDataset
-from geospatial_unet_pytorch.predict import GeoDatasetConvolution
-from geospatial_unet_pytorch.dataset.dataset_kelp import create_dataset_splits_with_reserved_site
 from geospatial_unet_pytorch.eval.metrics import MaskedDice   
+from geospatial_unet_pytorch.predict import GeoDatasetConvolution
 from geospatial_unet_pytorch.predict import predict
 
 def get_args():
@@ -138,8 +136,9 @@ if __name__ == '__main__':
     # Define loss function
     if cfg['loss_function'] == 'dice':
         criterion = MaskedDice(mode=smp.losses.BINARY_MODE, from_logits=True)
-    else:
+    elif cfg['loss_function'] == 'l1':
         criterion = MaskedLoss(cfg['loss_function'])
+    else:
         raise NotImplementedError(f'loss_function, {cfg["loss_function"]}, from config.yaml not implemented')
     
     if cfg['periodical_eval']:

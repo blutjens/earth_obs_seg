@@ -4,6 +4,19 @@
     [] go file by file and call git diff.. testing with hrmelt
         x train.py
         x config.yaml
+        predict.py
+            implement load_targets_mask and load_targets and integrate into predict.py
+        x geospatial.py
+        x utils.py
+        x online_eval
+    [x] dataset
+[] rename targets_mask to nan_mask
+[] rename img_size to tile_size
+[] create pull request in kelpseg
+    L51 in online_eval.py should be
+        pbar2.set_postfix(**{'val loss/img': loss.cpu().numpy()})
+    Typo in L254 of dataset_kelp: 'iin_keys_planet_superdove': ['b1','b2','b3','b4','b5','b6','b7','b8'],
+
 [] create one notebook that illustrates hrmelt and one that illustrates kelpseg
 [x] rename earth_obs_seg into geospatial_unet_pytorch
     rename pyproject toml

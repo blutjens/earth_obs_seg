@@ -4,6 +4,8 @@
 archive/*
 data/oxfordpetdataset
 runs/*/*/checkpoints
+runs/*/*/wandb
+runs/*/*/periodical_eval
 docs/todo.md
 
 ######

@@ -1,4 +1,3 @@
-import random
 import logging
 from tqdm import tqdm
 import numpy as np
@@ -34,38 +33,33 @@ def online_eval(model, dataloader,
     # iterate over the validation set
     with tqdm(total=n_val, desc='validation.', unit='img', leave=False) as pbar2:
         for i, batch in enumerate(dataloader):
-            inputs = batch['image']
-            targets = batch['mask']
+            inputs, targets, targets_mask, meta = batch
 
             batch_sizes.append(inputs.shape[0]) 
             inputs = inputs.to(device=device, dtype=dtype, memory_format=torch.channels_last)
             targets = targets.to(device=device, dtype=dtype)
-
-            # Todo: define a transform that includes normalization, augmentations, etc. and remove this line 
-            #  in train.py and online_eval.py
-            inputs = inputs / 255.
+            targets_mask = targets_mask.to(device=device, dtype=dtype)
 
             # predict the output
             pred = model(inputs)
 
-            loss = criterion(pred, targets) # average loss per img
+            loss = criterion(pred, targets, targets_mask) # average loss per img
 
             total_loss += loss * batch_sizes[i] # compute total loss by multiplying with number of images in batch
         
             pbar2.update(batch_sizes[i])
-            pbar2.set_postfix(**{'val loss/img': total_loss.cpu().numpy() / float(sum(batch_sizes[:i+1]))})
+            pbar2.set_postfix(**{'val loss/img': loss.cpu().numpy()})
 
-            # Plot one image in the batch to wandb
-            if i == np.floor(plot_img_idx / batch_sizes[0]): # index into batch that contains plot_img_idx
-                log_inputs_and_targets_to_wandb = cfg['log_inputs_and_targets_to_wandb'] if 'log_inputs_and_targets_to_wandb' in cfg.keys() else True
-                if wandb_run is not None and log_inputs_and_targets_to_wandb:
+            # Plot one image per epoch to wandb
+            if i == np.floor(plot_img_idx / batch_sizes[0]): # if current batch contains the image we'd like to plot
+                if wandb_run is not None and cfg['plot_val_img_to_wandb']:
                     import wandb
-                    idx_in_batch = (plot_img_idx - i * batch_sizes[0]).cpu().numpy().item() # index of image in batch inputs[] tensor
+                    idx_in_batch = (plot_img_idx - i * batch_sizes[0]).cpu().numpy().item() # get the index of the image within the batch
                     # Add all in- and output images as a list of images, s.t., epoch slider moves all the same.
-                    log_ims_wandb = [wandb.Image(input_img) for input_img in inputs[idx_in_batch].cpu()] # add inputs
-                    # log_ims_wandb.append(wandb.Image(targets_mask[idx_in_batch,0].cpu().numpy())) # {0: 'valid', 1: 'masked'}
-                    log_ims_wandb.append(wandb.Image(targets[idx_in_batch].cpu())) # add target
-                    log_ims_wandb.append(wandb.Image(pred[idx_in_batch].cpu())) # add prediction
+                    log_ims_wandb = [wandb.Image(input_img) for input_img in inputs[idx_in_batch].cpu().numpy()] # add every channel within the image we're plotting individually as grayscale
+                    log_ims_wandb.append(wandb.Image(targets_mask[idx_in_batch,0].cpu().numpy()))
+                    log_ims_wandb.append(wandb.Image(targets[idx_in_batch].cpu().numpy())) # add target
+                    log_ims_wandb.append(wandb.Image(pred[idx_in_batch].cpu().numpy())) # add prediction
                     if 'in_keys' in cfg:
                         in_keys = cfg['in_keys'] + cfg['in_keys_static']
                     else:
@@ -82,7 +76,7 @@ def online_eval(model, dataloader,
 
         # Optionally log distribution of weights and gradients per layer. This takes ~1sec per log. 
         histograms = {}
-        if cfg['log_weight_histograms']:
+        if cfg['plot_weight_histograms_to_wandb']:
             for tag, value in model.named_parameters():
                 tag = tag.replace('/', '.')
                 if not (torch.isinf(value) | torch.isnan(value)).any():

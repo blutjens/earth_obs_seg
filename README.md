@@ -1,10 +1,8 @@
 # geospatial_unet_pytorch
-Barebone template code for training UNet for segmentation of remote sensing imagery 
-
-Includes functionality for monitoring runs vai weights and biases. 
+Barebone code for training and evaluating a UNet for segmentation or downscaling of geospatial data including remote sensing, satellite, aerial imagery or weather/climate data. This code works with datasets that are a collection of large-scale tifs. These tifs can contain nans, have different extent, and be quite large (e.g., 10,000px x 6,000px x 8-channels, with ~500MB each). The dataloader dynamically loads small tiles from the full-scale tifs into memory for training. After training, prediction across a new set of large-scale tifs can be created with predict.py that sweeps the model across the full area of the tif.
 
 ## Installation
-We recommend installing [conda](https://docs.conda.io/en/latest/) and then setup the project using the following lines:
+We recommend installing [conda](https://docs.conda.io/en/latest/) and then setting-up the project with the following lines:
 ```
 # click 'use this template' -> set <your_repo_name> -> click 'private'
 git clone git@github.com:<username>/<your_repo_name>.git
@@ -31,21 +29,48 @@ python -c 'from osgeo import gdal'
 ## Train a model
 ```
 python geospatial_unet_pytorch/train.py --cfg_path runs/unet_smp/demo_run/config/config.yaml
+# Navigate to the wandb link that's in the terminal to see the training curve
+```
+
+## Used the trained model to create predictions 
+```
+python kelpseg/predict.py --load 'runs/unet_smp/demo_run/checkpoints/checkpoint_epoch10.pth'
 ```
 
 ## How to add a custom dataset
 ```
-- First, we recommend to make this repository run with the demo_run and sample dataset
-- Then, create a new python file geospatial_unet_pytorch/dataset/dataset_yourdataset.py
+- We recommend to get this repository running using demo_run and dataset_hrmelt before adding a custom dataset
+- Then, create a new file, geospatial_unet_pytorch/dataset/dataset_yourdataset.py, similar to the hrmelt dataset
 - Edit train.py to use the new dataset class
 - Compute mean and standard deviation of each input channel across the dataset in 
    a language of your choosing and insert the values in config.yaml.
 - Write a function creates data splits and saves by creating one filepath entry per full-scale tif into as train.csv, val.csv, test.csv, periodical_eval.csv
 ```
 
-## optional: Rename the src folder into <your_repo_name>
+## Optional: Rename the src folder into <your_repo_name>
 ```
-# rename geospatial_unet_pytorch folder into <your_repo_name>
-# replace geospatial_unet_pytorch in pyproject.toml with <your_repo_name>
-# replace geospatial_unet_pytorch in all .py and .ipynb files with <your_repo_name>
+# Rename geospatial_unet_pytorch folder into <your_repo_name>
+# Replace geospatial_unet_pytorch in pyproject.toml with <your_repo_name>
+# Replace geospatial_unet_pytorch in all .py and .ipynb files with <your_repo_name>
+```
+
+## Features and functionality
+```
+Implemented:
+- UNet from segmentation_models.pytorch (smp) library
+- Pretrained model weights via integration with timm via smp library
+- Logging and monitoring runs via weights and biases
+- Tested reproducibility and random seeds
+- Training on single GPU
+- Parallel batches during train and prediction
+- L1 and dice loss on nan-masked targets
+- Periodically evaluate the model during training on predictions across the full-scale tif
+
+Not implemented:
+- Evaluate predictions of multiple models using one script
+- Python typing in all functions
+- Multi-GPU
+- Integration with pretrained models for geospatial data, e.g., SatCLIP
+- Mixed precision
+- Other loss functions on nan-masked targets
 ```
