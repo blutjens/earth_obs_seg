@@ -1,11 +1,14 @@
 ### personally, I like to keep track of my todo's in a .md file like this.
-[] rename earth_obs_seg into geospatial_unet_pytorch
+[] copy code from kelpseg
+    [x] update installation 
+    [] go file by file and call git diff.. testing with hrmelt
+        x train.py
+        config.yaml
+[] create one notebook that illustrates hrmelt and one that illustrates kelpseg
+[x] rename earth_obs_seg into geospatial_unet_pytorch
     rename pyproject toml
     rename imports
     rename config
-[] copy code from kelpseg
-    [] go file by file and call git diff.. testing with hrmelt
-[] create one notebook that illustrates hrmelt and one that illustrates kelpseg
 [x] add dtypes into code
 [x] normalize data
 [x] make GPU installation work ->> I can test with hrmelt environment ->> successfully tested with kevin on jetstream2f

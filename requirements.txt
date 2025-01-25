@@ -1,12 +1,6 @@
-pip
-matplotlib
-scikit-image
-scikit-learn
-numpy
-pandas
-jupyter
-tqdm # create progress bars
+matplotlib # for creating plots
 rasterio # python wrapper on top of gdal for visualizing geospatial data
-gdal # low level library for remote sensing imagery
-segmentation-models-pytorch # includes cuda, torch, collection of good segmentation models 
-# torchvision
+tqdm # create progress bars
+segmentation-models-pytorch # includes code for unet and other good segmentation models
+pandas
+wandb
