@@ -3,8 +3,8 @@
     -> big labeled tif from eie flood? it's just 3-channel
     -> hrmelt -> not public
     -> wetseg -> is it public yet
-[] insert screenshots of successful prediction in README
-[] create one notebook that illustrates hrmelt and one that illustrates kelpseg
+[] insert evidence that repo works into README.md
+[] create one notebook that illustrates hrmelt
 [x] test adding 'dem' to input channels
 [x] check in open_cropped_tif if filepath exists
 [x] rename targets_mask to nan_mask

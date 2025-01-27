@@ -278,7 +278,6 @@ class HRMeltDataset(Dataset):
             dem = torch.from_numpy(dem.transpose((2, 0, 1))).contiguous() # Pytorch uses channels-first: (c, h, w)
             if self.cfg['normalize_inputs']:
                 dem = T.Normalize(mean=self.cfg['mean_dem'], std=self.cfg['std_dem'])(dem)
-            dem = 1. - dem # Invert because lower altitudes have more melt
             inputs[ch_idx:ch_idx+1,...] = dem
             meta['channels'][ch_idx] = 'dem' 
             ch_idx += 1

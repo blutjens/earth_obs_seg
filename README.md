@@ -37,6 +37,9 @@ python geospatial_unet_pytorch/train.py --cfg_path runs/unet_smp/demo_run/config
 python geospatial_unet_pytorch/predict.py --load 'runs/unet_smp/demo_run/checkpoints/checkpoint_epoch10.pth'
 ```
 
+Succesful training in the early stages could look like this:
+![screenshot of wandb train progress](./docs/wandb_screenshot.png)
+
 ## How to add a custom dataset
 ```
 - We recommend to get this repository running using demo_run and dataset_hrmelt before adding a custom dataset
