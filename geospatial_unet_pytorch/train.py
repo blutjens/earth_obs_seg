@@ -91,7 +91,6 @@ if __name__ == '__main__':
     train_set = HRMeltDataset(cfg=cfg, split='train', verbose=False)
     val_set = HRMeltDataset(cfg=cfg, split='val', verbose=False)
     
-    
     loader_args = dict(batch_size=cfg['batch_size'],
                        num_workers=cfg['num_workers'],
                        pin_memory=True,

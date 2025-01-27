@@ -3,10 +3,9 @@
     -> big labeled tif from eie flood? it's just 3-channel
     -> hrmelt -> not public
     -> wetseg -> is it public yet
-[] 
-[] test adding 'dem' to input channels
-[] check in open_cropped_tif if filepath exists
 [] create one notebook that illustrates hrmelt and one that illustrates kelpseg
+[x] test adding 'dem' to input channels
+[x] check in open_cropped_tif if filepath exists
 [x] rename targets_mask to nan_mask
 [x] rename img_size to tile_size
 [x] create pull request in kelpseg
