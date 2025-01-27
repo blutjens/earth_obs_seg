@@ -1,4 +1,5 @@
 import numpy as np
+from pathlib import Path
 from osgeo import gdal
 import torch
 
@@ -17,6 +18,8 @@ def open_cropped_tif(path: str,
     Returns:
         array (height, width, n_channels)
     """
+    assert Path(path).is_file(), f'Path to full-scale tif, {path}, not found.'
+
     ds = gdal.Open(path)
     if tile_size is None:
         array = np.array(ds.GetRasterBand(band_idx).ReadAsArray())

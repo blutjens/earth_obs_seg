@@ -1,13 +1,14 @@
 ### personally, I like to keep track of my todo's in a .md file like this.
-[x] rename targets_mask to nan_mask
-[x] rename img_size to tile_size
-[] test adding 'dem' to input channels
-[] check in open_cropped_tif if filepath exists
 [] find a public dataset that i can use to demonstrate this repo :/
     -> big labeled tif from eie flood? it's just 3-channel
     -> hrmelt -> not public
     -> wetseg -> is it public yet
+[] 
+[] test adding 'dem' to input channels
+[] check in open_cropped_tif if filepath exists
 [] create one notebook that illustrates hrmelt and one that illustrates kelpseg
+[x] rename targets_mask to nan_mask
+[x] rename img_size to tile_size
 [x] create pull request in kelpseg
     L51 in online_eval.py should be
         pbar2.set_postfix(**{'val loss/img': loss.cpu().numpy()})
