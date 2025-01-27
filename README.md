@@ -40,11 +40,12 @@ python geospatial_unet_pytorch/predict.py --load 'runs/unet_smp/demo_run/checkpo
 ## How to add a custom dataset
 ```
 - We recommend to get this repository running using demo_run and dataset_hrmelt before adding a custom dataset
+- Write a function creates data splits and saves by creating one filepath entry per full-scale tif into as train.csv, val.csv, test.csv, periodical_eval.csv. Each filepath should only occur once in each file. (The train.csv in unet_smp/demo_run/config currently contains the same filepath multiple times which is only to illustrate that the model can overfit on the training set.). The filepaths in train, val, and test.csv should be mutually exclusive. We'd recommend to make periodical_eval.csv a subselection of ~50 tifs from val.csv  
+- Create a train.csv, val.csv, test.csv, and periodical_eval.csv
 - Then, create a new file, geospatial_unet_pytorch/dataset/dataset_yourdataset.py, similar to the hrmelt dataset
 - Edit train.py to use the new dataset class
 - Compute mean and standard deviation of each input channel across the dataset in 
    a language of your choosing and insert the values in config.yaml.
-- Write a function creates data splits and saves by creating one filepath entry per full-scale tif into as train.csv, val.csv, test.csv, periodical_eval.csv
 ```
 
 ## Optional: Rename the src folder into <your_repo_name>
