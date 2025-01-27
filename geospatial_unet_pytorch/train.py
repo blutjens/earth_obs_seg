@@ -173,22 +173,22 @@ if __name__ == '__main__':
         model.train()
         epoch_loss = 0
         with tqdm(total=len(train_set),
-                  desc=f'Epoch {epoch}/{cfg["epochs"]}', unit='img',
+                  desc=f'Epoch {epoch}/{cfg["epochs"]}', unit='tile',
                   # disable=(sweep==False) # disable tqdm if printing to log instead of console
                   ) as pbar:
             for i, batch in enumerate(train_loader):
-                inputs, targets, targets_mask, meta = batch
+                inputs, targets, nan_mask, meta = batch
 
                 # Send batch to GPU
                 inputs = inputs.to(device=device, dtype=dtype, memory_format=torch.channels_last)
                 targets = targets.to(device=device, dtype=dtype)
-                targets_mask = targets_mask.to(device=device, dtype=dtype)
+                nan_mask = nan_mask.to(device=device, dtype=dtype)
 
                 # Create model predictions
                 pred = model(inputs)
 
                 # Compute loss
-                loss = criterion(pred, targets, targets_mask)
+                loss = criterion(pred, targets, nan_mask)
                 
                 # Reset and scale gradients
                 optimizer.zero_grad(set_to_none=True)
@@ -209,7 +209,7 @@ if __name__ == '__main__':
 
                 pbar.update(inputs.shape[0])
                 epoch_loss += loss.item()
-                pbar.set_postfix(**{'avg loss/img': epoch_loss / float(i+1)})
+                pbar.set_postfix(**{'avg loss/valid_px': epoch_loss / float(i+1)})
 
         # Do online evaluation after every epoch
         val_score = online_eval(model, dataloader=val_loader, criterion=criterion, 

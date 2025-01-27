@@ -30,7 +30,7 @@ from geospatial_unet_pytorch.utils.utils import get_size_of_tif
 from geospatial_unet_pytorch.utils.utils import save_tensor_as_tif
 
 class Prediction(object):
-    def __init__(self, tif_size, img_size, offsets_list, device, dtype, erode_size=0):
+    def __init__(self, tif_size, tile_size, offsets_list, device, dtype, erode_size=0):
         """
         SRC: copied from hrmelt; we're trying not to change this.
 
@@ -40,8 +40,8 @@ class Prediction(object):
         """
         height_tif, width_tif = tif_size # size of predicted tif
         self.shape = (1, height_tif, width_tif) # shape of prediction
-        self.height_tile = min(img_size[0], height_tif) # size of each tile
-        self.width_tile = min(img_size[1], width_tif)
+        self.height_tile = min(tile_size[0], height_tif) # size of each tile
+        self.width_tile = min(tile_size[1], width_tif)
         self.device = device # cpu or gpu
         self.dtype = dtype # datatype of prediction
         self.offsets_list = offsets_list # list with offsets of each tile. see Dataset class
@@ -200,7 +200,7 @@ def predict(model,
     prediction = None
     with tqdm(total=n_tiles, desc='prediction', unit='tile') as pbar:
         for idx_batch, batch in enumerate(dataloader):
-            inputs, _, targets_mask, meta = batch
+            inputs, _, nan_mask, meta = batch
             batch_size = inputs.shape[0] # batch_size can vary with dataloader.drop_last = False
 
             # Retrieve the index of the tif to which the tiles belong. Take the idx
@@ -219,7 +219,7 @@ def predict(model,
                 # Initialize the full-scale .tif prediction
                 offsets_of_each_tile_in_tif = dataloader.dataset.offsets_list[tile_idcs_that_belong_to_tif]
                 prediction = Prediction(tif_size=dataloader.dataset.tif_sizes[idx_tif],
-                                        img_size=dataloader.dataset.cfg['img_size'],
+                                        tile_size=dataloader.dataset.cfg['tile_size'],
                                         offsets_list=offsets_of_each_tile_in_tif, 
                                         device=device, 
                                         dtype=dtype,
@@ -227,7 +227,7 @@ def predict(model,
                                         )
 
             inputs = inputs.to(device=device, dtype=dtype, memory_format=torch.channels_last)
-            targets_mask = targets_mask.to(device=device, dtype=dtype)
+            nan_mask = nan_mask.to(device=device, dtype=dtype)
             
             pred = model(inputs)
             
@@ -282,13 +282,13 @@ def predict(model,
                 if metrics_fn is not None:
                     # Load full-scale targets and mask into memory
                     path_targets = str(Path(cfg['path_data']) / Path(cfg['path_targets']) / Path(filename))
-                    targets_full_im, targets_mask_full_im = dataloader.dataset.load_targets_and_targets_mask(
-                        path_targets=path_targets, img_size=None, offsets=None)
+                    targets_full_im, nan_mask_full_im = dataloader.dataset.load_targets_and_nan_mask(
+                        path_targets=path_targets, tile_size=None, offsets=None)
                     targets_full_im = targets_full_im.to(device=device, dtype=dtype)
-                    targets_mask_full_im = targets_mask_full_im.to(device=device, dtype=dtype)
+                    nan_mask_full_im = nan_mask_full_im.to(device=device, dtype=dtype)
                     for metric_key in metrics_fn.keys():
                         # Add computed metric value to the running sum. This is the loss per valid pixel.
-                        metric_values[metric_key] += metrics_fn[metric_key](pred_avg, targets_full_im, targets_mask_full_im)
+                        metric_values[metric_key] += metrics_fn[metric_key](pred_avg, targets_full_im, nan_mask_full_im)
 
                 # Free memory of the done prediction
                 del prediction
@@ -300,7 +300,7 @@ def predict(model,
                     tile_idcs_that_belong_to_tif = np.argwhere(dataloader.dataset.idx_tifs==idx_tif).flatten()
                     offsets_of_each_tile_in_tif = dataloader.dataset.offsets_list[tile_idcs_that_belong_to_tif]
                     prediction = Prediction(tif_size=dataloader.dataset.tif_sizes[idx_tif],
-                                        img_size=dataloader.dataset.cfg['img_size'],
+                                        tile_size=dataloader.dataset.cfg['tile_size'],
                                         offsets_list=offsets_of_each_tile_in_tif, 
                                         device=device, 
                                         dtype=dtype,
@@ -394,7 +394,7 @@ class GeoDatasetConvolution(HRMeltDataset):
             cfg, split, verbose: see parent class
             stride int: Stride is the number of pixels+1 between every tile's top-left
              corner that is loaded into memory for prediction. If the stride
-             is smaller than the img_size, each pixel in the predicted 
+             is smaller than the tile_size, each pixel in the predicted 
              image will be a weighted average of all predictions at that
              pixel.
         '''
@@ -403,15 +403,15 @@ class GeoDatasetConvolution(HRMeltDataset):
 
         if stride is None:
             if 'erode_size' in cfg:
-                stride = cfg['img_size'][0] - cfg['erode_size']
+                stride = cfg['tile_size'][0] - cfg['erode_size']
             else:
-                stride = cfg['img_size'][0]
+                stride = cfg['tile_size'][0]
         else:
-            if stride > cfg['img_size'][0] or stride > cfg['img_size'][1]:
-                raise ValueError(f'Configuration stride of {stride} is larger than img size of {cfg["img_size"]}.')
+            if stride > cfg['tile_size'][0] or stride > cfg['tile_size'][1]:
+                raise ValueError(f'Configuration stride of {stride} is larger than tile size of {cfg["tile_size"]}.')
             if 'erode_size' in cfg:
-                if stride > (cfg['img_size'][0] - cfg['erode_size']) or stride > (cfg['img_size'][1] - cfg['erode_size']):
-                    raise ValueError(f'Configuration stride of {stride} is larger than img size, {cfg["img_size"]}, minus erode_size, {cfg["erode_size"]}.')
+                if stride > (cfg['tile_size'][0] - cfg['erode_size']) or stride > (cfg['tile_size'][1] - cfg['erode_size']):
+                    raise ValueError(f'Configuration stride of {stride} is larger than img size, {cfg["tile_size"]}, minus erode_size, {cfg["erode_size"]}.')
             self.cfg['prediction_stride'] = stride
 
         # Create a list of the position of every tile within every tif
@@ -425,7 +425,7 @@ class GeoDatasetConvolution(HRMeltDataset):
             self.tif_sizes[idx_tif] = get_size_of_tif(str(tifpath))
             offsets_in_tif = create_list_of_yx_offsets_in_tif(
                     self.tif_sizes[idx_tif],
-                    tile_size=cfg['img_size'],
+                    tile_size=cfg['tile_size'],
                     stride=stride
                 ) # dims: (tiles in tif, 2)
             self.offsets_list = np.concatenate((self.offsets_list, offsets_in_tif), axis=0)

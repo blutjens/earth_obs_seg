@@ -14,7 +14,7 @@ from geospatial_unet_pytorch.utils.geospatial import open_cropped_tif
 from geospatial_unet_pytorch.utils.geospatial import get_random_crop
 
 def get_crop_with_min_targets(
-    path_targets: str, img_size: [int, int], 
+    path_targets: str, tile_size: [int, int], 
     min_targets_percentage: float = 0., max_n_resampling: int = 10
 ) -> ([int, int], [int, int]):
     """
@@ -25,20 +25,20 @@ def get_crop_with_min_targets(
 
     Args:
         path_targets: Path to the targets GeoTIFF file.
-        img_size: [height, width] of the desired crop size.
+        tile_size: [height, width] of the desired crop size.
         min_targets_percentage: Minimum percentage of targets required in the crop (0-1). Pass 0. for sampling every tile.
         max_n_resampling: Maximum number of resampling attempts.
     Returns:
         offsets: [height, width] offsets for the crop.
-        img_size: [height, width] of the actual crop.
+        tile_size: [height, width] of the actual crop.
     """
     for _ in range(max_n_resampling):
         # Get random crop offsets and size
-        offsets, crop_size = get_random_crop(path_targets, img_size)
+        offsets, crop_size = get_random_crop(path_targets, tile_size)
 
         # Load the crop from the target mask
         targets = open_cropped_tif(path=path_targets,
-                                   img_size=img_size,
+                                   tile_size=tile_size,
                                    offsets=offsets,
                                    band_idx=1)
         
@@ -105,7 +105,7 @@ def get_filepaths_from_csv(path_csv,
         filepaths = dict()
         for key in data_keys:
             assert f'path_{key}' in cfg, f'config.yaml is missing {cfg["path_{key}"]} argument'
-            dir_key = Path(os.path.join(cfg['path_data'], cfg[f'path_{key}']))
+            dir_key = Path(cfg['path_data']) / Path(cfg[f'path_{key}'])
             filepaths[key] = dir_key/Path(filename)
         data.append(filepaths)
 
@@ -142,7 +142,7 @@ class HRMeltDataset(Dataset):
         assert self.dtype == torch.float32, f'Dataset currently only accept float32, but got {self.dtype}'
         
         # Create list of keys to all relevant channels
-        self.keys = self.cfg['in_keys'] + self.cfg['in_keys_static'] + ['targets_mask', 'targets']
+        self.keys = self.cfg['in_keys'] + self.cfg['in_keys_static'] + ['nan_mask', 'targets']
 
     def __len__(self):
         '''
@@ -158,12 +158,12 @@ class HRMeltDataset(Dataset):
         '''
         pass
 
-    def load_targets_and_targets_mask(self, path_targets, img_size=None, offsets=None):
+    def load_targets_and_nan_mask(self, path_targets, tile_size=None, offsets=None):
         '''
-        Load one tile of the targets and the associated targets_mask
+        Load one tile of the targets and the associated nan_mask
         '''
 
-        targets = open_cropped_tif(path_targets, img_size=img_size, offsets=offsets)
+        targets = open_cropped_tif(path_targets, tile_size=tile_size, offsets=offsets)
         invalid_px_in_targets = np.ma.masked_invalid(targets).mask # NaNs in the targets, e.g., due to overexposure
         targets = np.ma.array(targets, mask=invalid_px_in_targets).filled(fill_value=0) # Fill masked values with zero.
         targets = targets.astype(np.float32) # note: src is float64, so converting to float32 will remove precision
@@ -172,18 +172,18 @@ class HRMeltDataset(Dataset):
         # Create a mask over which the targets are invalid. Here, we want to mask out all pixels
         #  that are NaNs in the target geotiff and all pixels over open ocean
         landmask_filepath = Path(self.cfg['path_data'])/Path(self.cfg['path_landmask'])
-        landmask = open_cropped_tif(str(landmask_filepath), img_size=img_size, offsets=offsets)
-        targets_mask = landmask == -1 # Ocean has label -1. Land has 1. We want to mask out the ocean. so we convert -1 -> 1 and 1 -> 0.
-        targets_mask = np.ma.mask_or(invalid_px_in_targets, targets_mask, shrink=False) # Create union mask of both masks        
-        targets_mask = targets_mask.astype(np.float32) # creates memory overhead but that's okay for now
-        targets_mask = torch.from_numpy(targets_mask.transpose((2,0,1))).contiguous() # to torch
+        landmask = open_cropped_tif(str(landmask_filepath), tile_size=tile_size, offsets=offsets)
+        nan_mask = landmask == -1 # Ocean has label -1. Land has 1. We want to mask out the ocean. so we convert -1 -> 1 and 1 -> 0.
+        nan_mask = np.ma.mask_or(invalid_px_in_targets, nan_mask, shrink=False) # Create union mask of both masks        
+        nan_mask = nan_mask.astype(np.float32) # creates memory overhead but that's okay for now
+        nan_mask = torch.from_numpy(nan_mask.transpose((2,0,1))).contiguous() # to torch
 
-        return targets, targets_mask
+        return targets, nan_mask
 
     def __getitem__(self, idx, offsets=None):
         '''
             Returns a single datastack of tiles. The returned tiles come from a large tif 
-            where only a crop of size, cfg.img_size, at a random location is loaded. All
+            where only a crop of size, cfg.tile_size, at a random location is loaded. All
             data is converted to float32.
 
             Args:
@@ -193,7 +193,7 @@ class HRMeltDataset(Dataset):
                 inputs torch.Tensor(5, h, w): Inputs with stacked channel dimension
             targets torch.Tensor(1, h, w, ): Prediction targets, in this case
                 surface meltwater fraction
-            targets_mask torch.Tensor(1, h, w): Nan mask in outputs
+            nan_mask torch.Tensor(1, h, w): Nan mask in outputs
                 with 1. for invalid values and 0. for valid values.
             meta dict(): meta information on return datastack
         '''
@@ -203,20 +203,20 @@ class HRMeltDataset(Dataset):
         # Randomly the position of the top-left corner of a tile within the large tif
         if offsets is None:
             if 'targets' in data_stack.keys():
-                offsets, self.cfg['img_size'] = get_crop_with_min_targets(
+                offsets, self.cfg['tile_size'] = get_crop_with_min_targets(
                     path_targets=str(data_stack['targets']), 
-                    img_size=self.cfg['img_size'], 
+                    tile_size=self.cfg['tile_size'], 
                     min_targets_percentage=self.cfg['min_targets_percentage'], 
                     max_n_resampling=self.cfg['max_n_resampling_of_cropped_tif'])
             else:
                 sample_key = list(data_stack.keys())[0]
-                offsets, self.cfg['img_size'] = get_random_crop(str(data_stack[sample_key]), self.cfg['img_size'])
+                offsets, self.cfg['tile_size'] = get_random_crop(str(data_stack[sample_key]), self.cfg['tile_size'])
 
         # Initialize inputs
         n_ch = len(self.cfg['in_keys']) + len(self.cfg['in_keys_static'])
         assert n_ch >= 1, 'Error. config["in_keys*"] need to have at least one key'
-        height = self.cfg['img_size'][0]
-        width = self.cfg['img_size'][1]
+        height = self.cfg['tile_size'][0]
+        width = self.cfg['tile_size'][1]
         inputs = torch.empty((n_ch, height, width), dtype=self.dtype)
         ch_idx = 0
         meta = {}
@@ -233,7 +233,7 @@ class HRMeltDataset(Dataset):
         # Adding PMW channel
         if 'pmw' in data_stack:
             # Load one tile into memory
-            pmw = open_cropped_tif(str(data_stack['pmw']), self.cfg['img_size'], offsets)
+            pmw = open_cropped_tif(str(data_stack['pmw']), self.cfg['tile_size'], offsets)
             assert pmw.dtype == np.float32, f'Expected dtype float32, but got {pmw.dtype} for pmw'
             
             # Convert from numpy array to torch Tensor
@@ -257,7 +257,7 @@ class HRMeltDataset(Dataset):
         
         # Adding MAR channel
         if 'mar_wa1' in data_stack:
-            mar_wa1 = open_cropped_tif(str(data_stack['mar_wa1']), self.cfg['img_size'], offsets)
+            mar_wa1 = open_cropped_tif(str(data_stack['mar_wa1']), self.cfg['tile_size'], offsets)
             assert mar_wa1.dtype == np.float32, f'Expected dtype float32, but got {mar_wa1.dtype} for mar_wa1'
             mar_wa1 = torch.from_numpy(mar_wa1.transpose((2, 0, 1))).contiguous()
             mar_wa1 = mar_wa1 / float(self.cfg['max_mar_wa1']) # scale
@@ -270,7 +270,7 @@ class HRMeltDataset(Dataset):
         # Adding static input channel DEM
         if 'dem' in data_stack:
             dem_filepath = Path(self.cfg['path_data'])/Path(self.cfg['path_dem'])
-            dem = open_cropped_tif(str(dem_filepath), self.cfg['img_size'], offsets)
+            dem = open_cropped_tif(str(dem_filepath), self.cfg['tile_size'], offsets)
             dem = dem.astype(np.float32)
             dem = torch.from_numpy(dem.transpose((2, 0, 1))).contiguous() # Pytorch uses channels-first: (c, h, w)
             if self.cfg['normalize_inputs']:
@@ -281,12 +281,12 @@ class HRMeltDataset(Dataset):
 
         # Add targets
         if 'targets' in data_stack:
-            targets, targets_mask = self.load_targets_and_targets_mask(
+            targets, nan_mask = self.load_targets_and_nan_mask(
                 path_targets=str(data_stack['targets']), 
-                img_size=self.cfg['img_size'], offsets=offsets)
+                tile_size=self.cfg['tile_size'], offsets=offsets)
         else:
             # Targets are empty, e.g., during deployment, because no ground-truth wetland segmentations are available
             targets = torch.zeros((1, height, width), dtype=self.dtype).contiguous()
-            targets_mask = torch.zeros((1, height, width), dtype=self.dtype).contiguous() # All pixels valid.
+            nan_mask = torch.zeros((1, height, width), dtype=self.dtype).contiguous() # All pixels valid.
         
-        return inputs, targets, targets_mask, meta
+        return inputs, targets, nan_mask, meta

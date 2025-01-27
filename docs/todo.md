@@ -1,13 +1,17 @@
 ### personally, I like to keep track of my todo's in a .md file like this.
-[] rename targets_mask to nan_mask
-[] rename img_size to tile_size
-[] create pull request in kelpseg
+[x] rename targets_mask to nan_mask
+[x] rename img_size to tile_size
+[] test adding 'dem' to input channels
+[] check in open_cropped_tif if filepath exists
+[] find a public dataset that i can use to demonstrate this repo :/
+    -> big labeled tif from eie flood? it's just 3-channel
+    -> hrmelt -> not public
+    -> wetseg -> is it public yet
+[] create one notebook that illustrates hrmelt and one that illustrates kelpseg
+[x] create pull request in kelpseg
     L51 in online_eval.py should be
         pbar2.set_postfix(**{'val loss/img': loss.cpu().numpy()})
-    Typo in L254 of dataset_kelp: 'iin_keys_planet_superdove': ['b1','b2','b3','b4','b5','b6','b7','b8'],
-[] test adding 'dem' to input channels
-[] check in open_cropped_tif if filepath exists 
-[] create one notebook that illustrates hrmelt and one that illustrates kelpseg
+    Typo in L254 of dataset_kelp: 'iin_keys_planet_superdove': ['b1','b2','b3','b4','b5','b6','b7','b8']
 [x] copy code from kelpseg
     [x] update installation 
     [] go file by file and call git diff.. testing with hrmelt

@@ -31,19 +31,19 @@ def online_eval(model, dataloader,
     plot_img_idx = torch.randint(0, n_val, (1,)) 
 
     # iterate over the validation set
-    with tqdm(total=n_val, desc='validation.', unit='img', leave=False) as pbar2:
+    with tqdm(total=n_val, desc='validation', unit='tile', leave=False) as pbar2:
         for i, batch in enumerate(dataloader):
-            inputs, targets, targets_mask, meta = batch
+            inputs, targets, nan_mask, meta = batch
 
             batch_sizes.append(inputs.shape[0]) 
             inputs = inputs.to(device=device, dtype=dtype, memory_format=torch.channels_last)
             targets = targets.to(device=device, dtype=dtype)
-            targets_mask = targets_mask.to(device=device, dtype=dtype)
+            nan_mask = nan_mask.to(device=device, dtype=dtype)
 
             # predict the output
             pred = model(inputs)
 
-            loss = criterion(pred, targets, targets_mask) # average loss per img
+            loss = criterion(pred, targets, nan_mask) # average loss per img
 
             total_loss += loss * batch_sizes[i] # compute total loss by multiplying with number of images in batch
         
@@ -57,18 +57,18 @@ def online_eval(model, dataloader,
                     idx_in_batch = (plot_img_idx - i * batch_sizes[0]).cpu().numpy().item() # get the index of the image within the batch
                     # Add all in- and output images as a list of images, s.t., epoch slider moves all the same.
                     log_ims_wandb = [wandb.Image(input_img) for input_img in inputs[idx_in_batch].cpu().numpy()] # add every channel within the image we're plotting individually as grayscale
-                    log_ims_wandb.append(wandb.Image(targets_mask[idx_in_batch,0].cpu().numpy()))
+                    log_ims_wandb.append(wandb.Image(nan_mask[idx_in_batch,0].cpu().numpy()))
                     log_ims_wandb.append(wandb.Image(targets[idx_in_batch].cpu().numpy())) # add target
                     log_ims_wandb.append(wandb.Image(pred[idx_in_batch].cpu().numpy())) # add prediction
                     if 'in_keys' in cfg:
                         in_keys = cfg['in_keys'] + cfg['in_keys_static']
                     else:
                         in_keys = ''
-                    wandb_run.log({'inputs('+','.join(in_keys)+'), target-mask, target, pred': 
+                    wandb_run.log({'inputs('+','.join(in_keys)+'), nan-mask, target, pred': 
                                 log_ims_wandb}, commit=False)
 
     val_score = total_loss / n_val
-    logging.info('val loss/img: {}'.format(val_score))
+    logging.info('val loss/valid_px: {}'.format(val_score))
 
     # Log plots to wandb
     if wandb_run is not None:

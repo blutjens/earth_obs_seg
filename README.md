@@ -2,7 +2,7 @@
 Barebone code for training and evaluating a UNet for segmentation or downscaling of geospatial data including remote sensing, satellite, aerial imagery or weather/climate data. This code works with datasets that are a collection of large-scale tifs. These tifs can contain nans, have different extent, and be quite large (e.g., 10,000px x 6,000px x 8-channels, with ~500MB each). The dataloader dynamically loads small tiles from the full-scale tifs into memory for training. After training, prediction across a new set of large-scale tifs can be created with predict.py that sweeps the model across the full area of the tif.
 
 ## Installation
-We recommend installing [conda](https://docs.conda.io/en/latest/) and then setting-up the project with the following lines:
+We recommend installing [conda](https://docs.conda.io/en/latest/) and then setting-up the project with the following lines. Installing pytorch, cuda, and gdal is a bit tricky, but the lines below worked on our machines:
 ```
 # click 'use this template' -> set <your_repo_name> -> click 'private'
 git clone git@github.com:<username>/<your_repo_name>.git
@@ -18,7 +18,7 @@ pip install -r requirements.txt
 pip install -e . # installs geospatial_unet_pytorch as python module
 ```
 
-### Test pytorch and gdal installation:
+### Test pytorch-cuda and gdal installation:
 ```
 # If the following line returns 'True', the torch -- GPU connection seems to work.
 python -c 'import torch; print(torch.cuda.is_available())'
@@ -34,7 +34,7 @@ python geospatial_unet_pytorch/train.py --cfg_path runs/unet_smp/demo_run/config
 
 ## Use the trained model to create predictions 
 ```
-python kelpseg/predict.py --load 'runs/unet_smp/demo_run/checkpoints/checkpoint_epoch10.pth'
+python geospatial_unet_pytorch/predict.py --load 'runs/unet_smp/demo_run/checkpoints/checkpoint_epoch10.pth'
 ```
 
 ## How to add a custom dataset

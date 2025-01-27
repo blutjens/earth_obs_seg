@@ -3,7 +3,7 @@ from osgeo import gdal
 import torch
 
 def open_cropped_tif(path: str, 
-    img_size: [int,int] = None, 
+    tile_size: [int,int] = None, 
     offsets: [int, int] = None,
     band_idx: int=1) -> np.ndarray:
     """
@@ -11,38 +11,38 @@ def open_cropped_tif(path: str,
     cropped image into memory; not the full .tif. 
 
     Input:
-        img_size [height, width]
+        tile_size [height, width]
         offsets [y_offset, x_offset]
         band_idx
     Returns:
         array (height, width, n_channels)
     """
     ds = gdal.Open(path)
-    if img_size is None:
+    if tile_size is None:
         array = np.array(ds.GetRasterBand(band_idx).ReadAsArray())
     else:
         if offsets is None:
-            offsets, img_size = get_random_crop(path)
+            offsets, tile_size = get_random_crop(path)
 
         # Read the cropped area using GDAL
         array = ds.GetRasterBand(band_idx).ReadAsArray(
-            offsets[1], offsets[0], img_size[1], img_size[0])
+            offsets[1], offsets[0], tile_size[1], tile_size[0])
 
     del ds
     return array[...,np.newaxis]
 
-def get_random_crop(path: str, img_size: [int, int]) -> [int,int]:
+def get_random_crop(path: str, tile_size: [int, int]) -> [int,int]:
     """
     Calculates random offsets within the .tif that's stored
-    in path assuming that the tif is rectangular. If img_size < actual tif 
+    in path assuming that the tif is rectangular. If tile_size < actual tif 
     size, the full tif is returned.
 
     Inputs:
         path
-        img_size  [height, width]
+        tile_size  [height, width]
     Returns:
         offsets [height, width]
-        img_size  [height, width]
+        tile_size  [height, width]
     """
     ds = gdal.Open(path)
     assert ds is not None, f'filepath not found: {path}'
@@ -53,9 +53,9 @@ def get_random_crop(path: str, img_size: [int, int]) -> [int,int]:
     del ds
 
     # Specify the size of the random crop
-    if img_size is not None:
-        crop_height = min(img_size[0], height)
-        crop_width = min(img_size[1], width)
+    if tile_size is not None:
+        crop_height = min(tile_size[0], height)
+        crop_width = min(tile_size[1], width)
     else:
         crop_height = height
         crop_width = width
@@ -67,7 +67,7 @@ def get_random_crop(path: str, img_size: [int, int]) -> [int,int]:
     # Generate random offsets for the crop. 
     # Note: using torch.randint instead of np.random for torch
     #  to handle the random seeds.
-    if img_size is None:
+    if tile_size is None:
         # Set zero offset is the full image should be loaded into memory
         y_offset = 0
         x_offset = 0

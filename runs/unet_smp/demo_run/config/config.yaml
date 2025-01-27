@@ -28,7 +28,7 @@ path_periodical_eval: './runs/unet_smp/demo_run/periodical_eval' # Store predict
 path_predictions: './runs/unet_smp/demo_run/predictions' # Store predictions across the full tif after training, e.g., on the test dataset
 path_deploy: './runs/unet_smp/demo_run/deploy' # Store predictions after training on a new dataset where we don|t have targets
 path_wandb: './runs/unet_smp/demo_run'
-plot_val_img_to_wandb: True # If plotting to wandb is activated, and this is True then we're plotting the inputs, targets_masks, and targets during validation
+plot_val_img_to_wandb: True # If plotting to wandb is activated, and this is True then we're plotting the inputs, nan_masks, and targets during validation
 plot_weight_histograms_to_wandb: False # # If plotting to wandb is activated, and this is True then plotting histogram of weights to wandb
 path_train_split_csv: './runs/unet_smp/demo_run/config/train.csv' # Image filenames used during training
 path_val_split_csv: './runs/unet_smp/demo_run/config/val.csv' # Image filenames used during validation
@@ -90,7 +90,7 @@ max_mar_wa1: 1.
 # training hyperparameters
 epochs: 100
 batch_size: 2
-img_size: [256,256] # height and width of tile
+tile_size: [256,256] # height and width of tile
 optimizer: 'adamW' # Optimization algorithm
 learning_rate: 0.0001
 weight_decay: 0.
@@ -122,12 +122,12 @@ eta_min: 0. # Minimum learning rate. Default: 0.
 # this will lead to a unstable validation metric.
 periodical_eval: True
 epochs_between_periodical_eval: 10 # period in epochs between evalutions
-period_wandb_full_scale_im: 10 # every periodical evaluation the metrics are computed, but only every period_wandb_full_scale_im periodical evaluations we are also sending the images to wandb
+period_wandb_full_scale_im: 1 # every periodical evaluation the metrics are computed, but only every period_wandb_full_scale_im periodical evaluations we are also sending the images to wandb
 starting_epoch: 1 # epochs before starting evaluation
 
 # Evaluation parameters
 prediction_batch_size: 8
-prediction_stride: 224 # Default recommendation during training: prediction_stride = img_size - 2*erode_size
+prediction_stride: 224 # Default recommendation during training: prediction_stride = tile_size - 2*erode_size
 # 256 - 2*16 = 224
 erode_size: 16
 
