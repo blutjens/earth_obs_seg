@@ -281,7 +281,7 @@ class HRMeltDataset(Dataset):
             inputs[ch_idx:ch_idx+1,...] = dem
             meta['channels'][ch_idx] = 'dem' 
             ch_idx += 1
-        
+                
         # Add targets
         if 'targets' in data_stack:
             targets, nan_mask = self.load_targets_and_nan_mask(
