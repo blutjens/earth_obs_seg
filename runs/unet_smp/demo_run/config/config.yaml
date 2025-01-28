@@ -14,7 +14,7 @@ dtype: 'float32' # Datatype for in-, output and model weights
 model_key: 'unet_smp' # Unique ID for chosen model that is used across filenames, logs, etc.
 encoder_name: 'resnet34' # Choose encoder, e.g. mobilenet_v2 or efficientnet-b7
 encoder_weights: null # Use 'null' for random initialization. And, `imagenet` for pre-trained weights
-in_channels: 4 # Model input channels. Convention, this needs to match the total number of input keys
+in_channels: 3 # Model input channels. Convention, this needs to match the total number of input keys
 out_channels: 1 # Number of model output channels, e.g., 1 for binary classification
 
 # Replace <demo_run> with the name of your data split
