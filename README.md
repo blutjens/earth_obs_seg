@@ -32,13 +32,16 @@ python geospatial_unet_pytorch/train.py --cfg_path runs/unet_smp/demo_run/config
 # Remove --no_wandb to monitoring training on weights and biases curve
 ```
 
+Succesful training in the early stages could look like this:
+![screenshot of wandb train progress](./docs/wandb_screenshot.png)
+
+And, wandb will log predictions across the large-scale tif:
+![screenshot of wandb predictions across the large-scale tif](./docs/periodical_eval_screenshot.png)
+
 ## Use the trained model to create predictions 
 ```
 python geospatial_unet_pytorch/predict.py --load 'runs/unet_smp/demo_run/checkpoints/checkpoint_epoch10.pth'
 ```
-
-Succesful training in the early stages could look like this:
-![screenshot of wandb train progress](./docs/wandb_screenshot.png)
 
 ## How to add a custom dataset
 ```

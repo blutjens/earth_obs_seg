@@ -3,8 +3,8 @@
     -> big labeled tif from eie flood? it's just 3-channel
     -> hrmelt -> not public
     -> wetseg -> is it public yet
-[] insert evidence that repo works into README.md
 [] create one notebook that illustrates hrmelt
+[x] insert evidence that repo works into README.md
 [x] test adding 'dem' to input channels
 [x] check in open_cropped_tif if filepath exists
 [x] rename targets_mask to nan_mask
@@ -40,7 +40,7 @@
     -> could use benin cashew, kenya crop type, inria aerial image labeling, 
     -> but unclear if there's any value using torchgeo dataset structure
     ->> use hrmelt.
-[] incorporate an hrmelt sample
+[x] incorporate an hrmelt sample
     [x] 3 sample images
     [x] copy dataset step by step
         [x] get_filepaths_from_csv
@@ -51,10 +51,10 @@
     [] change train.py and online_eval.py expected _getitem_
     [] Binarize melt in HRMeltDataset and test with 'dice' loss. 
     [] change OxfordPetDataset _getitem_ return structure
-[] include code on periodical large evaluation on predictions
-[] connect logging to wandb
-[] add comments to code
-[] install with # todo: install with conda install -c conda-forge --file requirements.txt
+[x] include code on periodical large evaluation on predictions
+[x] connect logging to wandb
+[x] add comments to code
+[x] install with # todo: install with conda install -c conda-forge --file requirements.txt
 [x] test installation -> earth_obs_seg seems to work. Can delete earth_obs_seg2
     1st issue: conda installation of gdal doesn't work. It only works with these commands.
     # If the following line throws an error, try reinstalling gdal with the commands below
