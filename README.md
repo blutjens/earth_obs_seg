@@ -32,7 +32,7 @@ python geospatial_unet_pytorch/train.py --cfg_path runs/unet_smp/demo_run/config
 # Remove --no_wandb to monitoring training on weights and biases curve
 ```
 
-Succesful training in the early stages could look like this:
+Succesful training after ~1hr on the hrmelt sample dataset could look like this:
 ![screenshot of wandb train progress](./docs/wandb_screenshot.png)
 
 And, wandb will log predictions across the large-scale tif:
